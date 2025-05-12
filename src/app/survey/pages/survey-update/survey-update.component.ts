@@ -37,11 +37,20 @@ export class SurveyUpdateComponent {
     this.isEditMode = !!this.urlName;
 
     if (this.isEditMode) {
-      this.surveyApiService.loadSurvey(this.urlName).subscribe(survey => {
-        this.survey = survey;
-        this.form.patchValue({ name: survey.name, id: survey.id });
+      this.surveyApiService.loadSurvey(this.urlName).subscribe({
+        next: (survey) => {
+          this.survey = survey;
+          this.form.patchValue({ name: survey.name, id: survey.id });
 
-        survey.surveyQuestions.forEach(q => this.addSurveyQuestion(q));
+          survey.surveyQuestions.forEach(q => this.addSurveyQuestion(q));
+        },
+        error: (err) => {
+          if (err.status === 404) {
+            this.router.navigate(['/not-found']);  // Or your actual not-found route
+          } else {
+            console.error('Error loading survey:', err);
+          }
+        }
       });
     }
   }
@@ -56,11 +65,11 @@ export class SurveyUpdateComponent {
       return;
     }
 
-    const questionHasNoResponses = this.surveyQuestions.controls.some(q =>
-      (q.get('surveyResponses') as FormArray).length === 0
+    const questionHasLackResponses = this.surveyQuestions.controls.some(q =>
+      (q.get('surveyResponses') as FormArray).length < 2
     );
 
-    if (questionHasNoResponses) {
+    if (questionHasLackResponses) {
       this.questionMissingResponsesError = true;
       return;
     }

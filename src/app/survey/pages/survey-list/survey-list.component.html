@@ -24,7 +24,7 @@
                     <mat-icon>edit</mat-icon> Edit
                 </button>
                 <button mat-stroked-button color="warn"
-                    (click)="$event.stopPropagation()">
+                        (click)="openConfirm(survey.urlName); $event.stopPropagation()">
                     <mat-icon>delete</mat-icon> Delete
                 </button>
             </mat-card-actions>

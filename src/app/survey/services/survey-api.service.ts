@@ -48,4 +48,12 @@ export class SurveyApiService {
       }
     });
   }
+  deleteSurvey(urlName: string): Observable<void> {
+    const token = this.googleAuthService.getToken();
+    return this.http.delete<void>(`${this.baseUrl}/surveys/${urlName}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+  }
 }

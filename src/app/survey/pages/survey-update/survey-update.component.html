@@ -1,6 +1,6 @@
 <form [formGroup]="form" (ngSubmit)="onSubmit()" class="survey-form">
   <div class="top-buttons">
-    <button mat-button color="accent" routerLink="/surveys">
+    <button mat-button color="accent" routerLink="/my-surveys">
       <mat-icon>list</mat-icon>
       All Surveys
     </button>
@@ -34,7 +34,7 @@
   </mat-error>
 
   <mat-error *ngIf="questionMissingResponsesError">
-    Every question must have at least one response.
+    Every question must have at least two responses.
   </mat-error>
   <!-- Questions -->
   <div formArrayName="surveyQuestions" class="question-section">
