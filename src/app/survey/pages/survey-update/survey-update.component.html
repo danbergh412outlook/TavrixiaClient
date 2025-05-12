@@ -1,0 +1,100 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="survey-form">
+  <div class="top-buttons">
+    <button mat-button color="accent" routerLink="/surveys">
+      <mat-icon>list</mat-icon>
+      All Surveys
+    </button>
+
+    <button *ngIf="survey?.id" [routerLink]="['/survey', survey.urlName]" mat-button color="accent">
+      <mat-icon>visibility</mat-icon>
+      View Survey
+    </button>
+  </div>
+  <!-- Survey Name -->
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Survey Name</mat-label>
+    <input matInput formControlName="name" placeholder="Survey name" autocomplete="off" />
+    <mat-error *ngIf="form.get('name')?.hasError('required') && form.get('name')?.touched">
+      Name is required.
+    </mat-error>
+    <mat-error *ngIf="form.get('name')?.hasError('maxlength')">
+      Max 100 characters allowed.
+    </mat-error>
+  </mat-form-field>
+
+  <!-- Add Question Button Below Survey Name -->
+  <div class="add-button-container">
+    <button mat-stroked-button color="primary" type="button" (click)="addSurveyQuestion()">
+      <mat-icon>add</mat-icon>
+      Add Question
+    </button>
+  </div>
+  <mat-error *ngIf="noQuestionsError">
+  You must add at least one question.
+</mat-error>
+
+<mat-error *ngIf="questionMissingResponsesError">
+  Every question must have at least one response.
+</mat-error>
+  <!-- Questions -->
+  <div formArrayName="surveyQuestions" class="question-section">
+    @for (question of surveyQuestions.controls; let i = $index; track i) {
+      <div [formGroupName]="i" class="question-block">
+        <!-- Question Text + Remove Icon -->
+        <div class="question-inline-row">
+          <mat-form-field appearance="outline" class="flex-fill">
+            <mat-label>Question {{ i + 1 }}</mat-label>
+            <input matInput formControlName="text" placeholder="Enter question" autocomplete="off" />
+            <mat-error *ngIf="question.get('text')?.hasError('required') && question.get('text')?.touched">
+              Text is required.
+            </mat-error>
+            <mat-error *ngIf="question.get('text')?.hasError('maxlength')">
+              Max 100 characters allowed.
+            </mat-error>
+          </mat-form-field>
+
+          <button mat-icon-button color="warn" type="button" (click)="removeSurveyQuestion(i)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+
+        <!-- Survey Responses -->
+        <div formArrayName="surveyResponses" class="response-section">
+          @for (response of getSurveyResponses(i).controls; let j = $index; track j) {
+            <div [formGroupName]="j" class="response-block">
+              <mat-form-field appearance="fill" class="flex-fill">
+                <mat-label>Response</mat-label>
+                <input matInput formControlName="text" placeholder="Response option" autocomplete="off" />
+              </mat-form-field>
+              <mat-error *ngIf="response.get('text')?.hasError('required')">
+                Response is required.
+              </mat-error>
+              <mat-error *ngIf="response.get('text')?.hasError('maxlength')">
+                Max 100 characters allowed.
+              </mat-error>
+
+              <button mat-icon-button color="warn" type="button" (click)="removeSurveyResponse(i, j)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          }
+
+          <!-- Add Response FAB -->
+          <div class="add-button-container">
+            <button mat-stroked-button color="primary" type="button" (click)="addSurveyResponse(i)">
+              <mat-icon>add</mat-icon>
+              Add Response
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Submit Button -->
+  <div class="submit-container">
+    <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">
+      Submit
+    </button>
+  </div>
+</form>

@@ -1,0 +1,42 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="top-buttons">
+        <button mat-button color="accent" routerLink="/surveys">
+        <mat-icon>list</mat-icon>
+        All Surveys
+        </button>
+        <button mat-button color="accent" *ngIf="survey?.id" [routerLink]="['/survey/update', survey.urlName]">
+            <mat-icon>edit</mat-icon>
+            Edit Survey
+        </button>
+    </div>
+
+    
+  <mat-card class="survey-info">
+    <div class="card-header">{{ survey.name }}</div>
+    <mat-card-content>
+      <p><strong>Created by:</strong> {{ survey.creator }}</p>
+      <p><strong>Date:</strong> {{ survey.dateCreated | date: 'medium' }}</p>
+    </mat-card-content>
+  </mat-card>
+
+  @for (question of survey.surveyQuestions; track question.id) {
+    <mat-card class="survey-question">
+      <div class="card-header">{{ question.text }}</div>
+      <mat-card-content>
+        <mat-radio-group [formControlName]="question.id.toString()" class="radio-group">
+          @for (response of question.surveyResponses; track response.id) {
+            <mat-radio-button [value]="response.id">
+              {{ response.text }}
+            </mat-radio-button>
+          }
+        </mat-radio-group>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <div class="submit-container">
+    <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">
+      Submit Survey
+    </button>
+  </div>
+</form>

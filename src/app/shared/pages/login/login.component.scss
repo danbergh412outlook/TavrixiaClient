@@ -1,0 +1,25 @@
+.login-container {
+    max-width: 400px;
+    margin: 80px auto; /* centers vertically & horizontally */
+    padding: 32px;
+    border-radius: 8px;
+    background-color: white;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  .login-container h2 {
+    margin-bottom: 8px;
+    font-size: 24px;
+  }
+  
+  .login-container p {
+    margin: 8px 0;
+    color: #555;
+  }
+  
+  .disclaimer {
+    font-size: 12px;
+    color: #888;
+    margin-top: 24px;
+  }

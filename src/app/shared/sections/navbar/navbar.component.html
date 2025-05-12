@@ -1,0 +1,15 @@
+<mat-toolbar color="primary">
+  <span class="logo">Tavrixia</span>
+
+  <div class="nav-links">
+    <a mat-button routerLink="/my-surveys" routerLinkActive="active">Surveys</a>
+    <a mat-button routerLink="/weather" routerLinkActive="active">Weather</a>
+  </div>
+
+  <span class="spacer"></span>
+
+  <span *ngIf="!googleAuthService.isTokenExpired()" class="user-info">
+    <span class="email">{{ googleAuthService.getName() }}</span>
+    <button mat-button class="logout-button" *ngIf="!googleAuthService.isTokenExpired()" (click)="logout()">Logout</button>
+  </span>
+</mat-toolbar>

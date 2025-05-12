@@ -1,0 +1,25 @@
+
+@if (weather){
+    <table border="1" cellpadding="5">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Temp (°C)</th>
+            <th>Temp (°F)</th>
+            <th>Summary</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of weather; track item.date) {
+            <tr>
+              <td>{{ item.date }}</td>
+              <td>{{ item.temperatureC }}</td>
+              <td>{{ item.temperatureF }}</td>
+              <td>{{ item.summary }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+}
+
+

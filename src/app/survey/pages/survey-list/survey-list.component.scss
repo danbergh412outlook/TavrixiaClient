@@ -1,0 +1,122 @@
+.survey-card {
+  cursor: pointer;
+  width: 275px;
+  margin: 1rem;
+  padding: 1.5rem;
+  background-color: #f9fbfd;
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative; // enable positioning context for ::before
+  overflow: hidden;   // optional: hides overflow if needed
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  }
+}
+.survey-card::before {
+  content: '';
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 4px;
+  width: 100%;
+  background-color: #1976d2; // your blue accent
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  z-index: 1;
+}
+
+mat-card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #212121;
+}
+
+mat-card-subtitle {
+  font-size: 0.9rem;
+  color: #6c757d;
+  margin-bottom: 0.5rem;
+}
+mat-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+mat-card-content p {
+  margin: 0.2rem 0;
+  font-size: 0.95rem;
+  color: #424242;
+}
+
+mat-card-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 1rem;
+  margin-top: auto;
+  flex-wrap: wrap;
+}
+
+mat-card-actions button {
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: box-shadow 0.2s ease;
+}
+mat-card-content p + .status-container {
+  margin-top: 4px;
+}
+mat-card-actions button:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+.status-badge {
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-weight: 500;
+  display: inline-block;
+  width: fit-content;
+}
+
+.status-badge.active {
+  background-color: #e6f4ea;
+  color: #2e7d32;
+}
+
+.status-badge.inactive {
+  background-color: #fdecea;
+  color: #c62828;
+}
+
+.status-badge.draft {
+  background-color: #fff8e1;
+  color: #f9a825;
+}
+.survey-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0rem auto 0rem;
+  padding: 0 1rem;
+  max-width: 1200px;
+}
+.card-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  justify-content: flex-start;
+}
+.survey-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0rem 1rem;
+}

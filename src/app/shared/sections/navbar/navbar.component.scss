@@ -1,0 +1,22 @@
+mat-toolbar {
+  display: flex;
+  align-items: center;
+}
+.spacer {
+  flex: 1 1 auto;
+}
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.nav-links {
+  display: flex;
+  gap: 12px; /* or 16px for wider spacing */
+  margin-left: 16px; /* optional: adds space after 'MyApp' */
+}
+.email
+{
+  font-size: 14px;
+  color: #ddd;
+}
