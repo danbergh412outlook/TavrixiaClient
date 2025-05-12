@@ -38,6 +38,11 @@ export const routes: Routes = [
         component: LoginComponent
     },
     { 
+        path: '', 
+        redirectTo: 'my-surveys', 
+        pathMatch: 'full' 
+    },
+    { 
         path: '**', 
         component: NotFoundComponent
     }
