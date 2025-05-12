@@ -30,12 +30,12 @@
     </button>
   </div>
   <mat-error *ngIf="noQuestionsError">
-  You must add at least one question.
-</mat-error>
+    You must add at least one question.
+  </mat-error>
 
-<mat-error *ngIf="questionMissingResponsesError">
-  Every question must have at least one response.
-</mat-error>
+  <mat-error *ngIf="questionMissingResponsesError">
+    Every question must have at least one response.
+  </mat-error>
   <!-- Questions -->
   <div formArrayName="surveyQuestions" class="question-section">
     @for (question of surveyQuestions.controls; let i = $index; track i) {
