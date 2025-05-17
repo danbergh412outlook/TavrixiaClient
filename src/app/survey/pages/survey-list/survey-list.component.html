@@ -10,7 +10,7 @@
     @for (survey of surveys; track survey.id) {
         <mat-card class="survey-card" (click)="viewSurvey(survey)">
             <mat-card-title class="card-title">{{ survey.name }}</mat-card-title>
-            <mat-card-subtitle>Created by {{ survey.creator }}</mat-card-subtitle>
+            <mat-card-subtitle>Created by {{ survey.creatorName }}</mat-card-subtitle>
             <mat-card-content>
                 <p>Date Created: {{ survey.dateCreated | date: 'mediumDate' }}</p>
                 <div class="status-container">

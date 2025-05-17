@@ -1,7 +1,11 @@
+import { SurveyQuestionDto } from "./survey-question-dto";
+
 export interface SurveyDto {
     id: number;
-    creator: string;
+    creatorEmail: string;
+    creatorName: string;
     name: string;
     urlName: string;
     dateCreated: Date;
+    surveyQuestions?: SurveyQuestionDto[]
 }

@@ -14,7 +14,7 @@
   <mat-card class="survey-info">
     <div class="card-header">{{ survey.name }}</div>
     <mat-card-content>
-      <p><strong>Created by:</strong> {{ survey.creator }}</p>
+      <p><strong>Created by:</strong> {{ survey.creatorName }}</p>
       <p><strong>Date:</strong> {{ survey.dateCreated | date: 'medium' }}</p>
     </mat-card-content>
   </mat-card>
@@ -34,9 +34,21 @@
     </mat-card>
   }
 
-  <!-- <div class="submit-container">
-    <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">
-      Submit Survey
-    </button>
-  </div> -->
+  <div class="submit-container">
+    @if (userSurvey) {
+      <button
+        mat-raised-button
+        color="accent"
+        [routerLink]="['/survey', userSurvey.surveyUrlName, 'response', userSurvey.userUrlName]">
+        View My Results
+      </button>
+    } @else {
+      <button
+        mat-raised-button
+        color="primary"
+        type="submit">
+        Submit Survey
+      </button>
+    }
+  </div>
 </form>

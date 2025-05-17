@@ -1,6 +1,9 @@
 import { Router } from '@angular/router';
-import { Injectable, NgZone, inject } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { jwtDecode } from 'jwt-decode'; // npm install jwt-decode
+import { AppUserApiService } from './app-user-api.service';
+import { LoadingService } from './loading.service';
+import { GoogleTokenService } from './google-token.service';
 
 declare const google: any;
 
@@ -8,8 +11,10 @@ declare const google: any;
   providedIn: 'root'
 })
 export class GoogleAuthService {
-  private ngZone = inject(NgZone);
   private router = inject(Router);
+  private appUsersService = inject(AppUserApiService);
+  private loader: LoadingService = inject(LoadingService);
+  private googleTokenService: GoogleTokenService = inject(GoogleTokenService);
 
   initialize(): void {
     google.accounts.id.initialize({
@@ -21,7 +26,7 @@ export class GoogleAuthService {
     });
   }
   getEmail(): string {
-    const token = this.getToken();
+    const token = this.googleTokenService.getToken();
     if (!token) return '';
   
     try {
@@ -33,12 +38,12 @@ export class GoogleAuthService {
     }
   }
   getName(): string {
-    const token = this.getToken();
+    const token = this.googleTokenService.getToken();
     if (!token) return '';
-  
+
     try {
       const decoded: any = jwtDecode(token);
-      return decoded.name || decoded.given_name || decoded.preferred_username || '';
+      return decoded.name || decoded.unique_name || ''; // fallback to unique_name if needed
     } catch (e) {
       console.error('Failed to decode token:', e);
       return '';
@@ -46,7 +51,7 @@ export class GoogleAuthService {
   }
   logout(): void {
     // 1. Clear the saved token
-    localStorage.removeItem('google_id_token');
+    this.googleTokenService.removeToken();
 
     // 2. Optional: revoke the token at Google (recommended for full logout)
     if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
@@ -67,7 +72,7 @@ export class GoogleAuthService {
     );
   }
   isTokenExpired(): boolean {
-    let token: string = this.getToken();
+    let token: string = this.googleTokenService.getToken();
     if (token == ""){
       return true;
     }
@@ -82,22 +87,27 @@ export class GoogleAuthService {
       return true; // treat as expired if invalid
     }
   }
-  getToken(): string {
-    return localStorage.getItem('google_id_token') || "";
-  }
 
   handleCredentialResponse(response: any): void {
+    this.loader.show();
     console.log('Google Sign-In Response:', response);
     const token = response.credential;
     const decodedToken: any = jwtDecode(token);
     console.log('Decoded Token:', decodedToken);
-    localStorage.setItem('google_id_token', token);
+    this.googleTokenService.setToken(token);
 
-    // After saving token, redirect user
-    this.ngZone.run(() => {
-      const redirectUrl = localStorage.getItem('redirectAfterLogin') || '/';
-      localStorage.removeItem('redirectAfterLogin'); // Clean up
-      window.location.href = redirectUrl; // or use router if inside Angular
+    this.appUsersService.ensureUserExists()
+    .subscribe({
+      next: () => {
+        const redirectUrl = localStorage.getItem('redirectAfterLogin') || '/';
+        localStorage.removeItem('redirectAfterLogin'); // Clean up
+        this.loader.hide();
+        window.location.href = redirectUrl; // or use router if inside Angular
+      },
+      error: () => {
+        this.loader.hide();
+      }
     });
+    
   }
 }

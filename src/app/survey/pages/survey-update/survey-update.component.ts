@@ -1,14 +1,16 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormArray } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormArray, AbstractControl } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { SurveyApiService } from '../../services/survey-api.service';
 import { SurveyDto } from '../../dtos/survey-dto';
-import { SurveyMapperService } from '../../services/survey-mapper.service';
-import { SurveyDetailsDto } from '../../dtos/survey-details-dto';
 import { SurveyQuestionDto } from '../../dtos/survey-question-dto';
 import { SurveyResponseDto } from '../../dtos/survey-response-dto';
 import { MaterialImports } from '../../../shared/imports/material-imports';
+import { LoadingService } from '../../../shared/services/loading.service';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
+import { mapUpdateSurveyDto } from '../../helpers/survey-mappers';
 
 @Component({
   selector: 'app-survey-update',
@@ -20,11 +22,18 @@ export class SurveyUpdateComponent {
   isEditMode = false;
   urlName!: string;
   form: FormGroup;
-  survey!: SurveyDetailsDto;
+  survey!: SurveyDto;
   noQuestionsError = false;
   questionMissingResponsesError = false;
 
-  constructor(private route: ActivatedRoute, private fb: FormBuilder, private surveyApiService: SurveyApiService, private router: Router, private surveyMapperService: SurveyMapperService) {    
+  constructor(
+    private route: ActivatedRoute, 
+    private fb: FormBuilder, 
+    private surveyApiService: SurveyApiService, 
+    private router: Router, 
+    private loadingService: LoadingService,
+    private dialog: MatDialog
+  ) {    
     this.form = this.fb.group({
       id: [null],
       name: ['', [Validators.required, Validators.maxLength(100)]], // Add validators as needed
@@ -37,14 +46,17 @@ export class SurveyUpdateComponent {
     this.isEditMode = !!this.urlName;
 
     if (this.isEditMode) {
+      this.loadingService.show();
       this.surveyApiService.loadSurvey(this.urlName).subscribe({
         next: (survey) => {
           this.survey = survey;
           this.form.patchValue({ name: survey.name, id: survey.id });
 
-          survey.surveyQuestions.forEach(q => this.addSurveyQuestion(q));
+          survey.surveyQuestions!.forEach(q => this.addSurveyQuestion(q));
+          this.loadingService.hide();
         },
         error: (err) => {
+          this.loadingService.hide();
           if (err.status === 404) {
             this.router.navigate(['/not-found']);  // Or your actual not-found route
           } else {
@@ -54,40 +66,87 @@ export class SurveyUpdateComponent {
       });
     }
   }
-  onSubmit(): void {
-    this.noQuestionsError = false;
-    this.questionMissingResponsesError = false;
-
-    if (this.form.invalid) return;
-
+  checkNoQuestionsError(): boolean
+  {
     if (this.surveyQuestions.length === 0) {
       this.noQuestionsError = true;
-      return;
+      return true;
     }
-
+    this.noQuestionsError = false;
+    return false;
+  }
+  checkQuestionMissingResponsesError(): boolean
+  {
     const questionHasLackResponses = this.surveyQuestions.controls.some(q =>
       (q.get('surveyResponses') as FormArray).length < 2
     );
 
     if (questionHasLackResponses) {
       this.questionMissingResponsesError = true;
-      return;
+      return true;
     }
-
-    const dto = this.surveyMapperService.mapUpdateSurveyDto(this.form.value, this.survey);
+    this.questionMissingResponsesError = false;
+    return false;
+  }
+  isInvalid(): boolean {
+    var formInvalid = this.form.invalid;
+    this.checkNoQuestionsError();
+    this.checkQuestionMissingResponsesError();
+    return formInvalid || this.noQuestionsError || this.questionMissingResponsesError;
+  }
+  modifySurvey(): void {
+    this.loadingService.show();
+    const dto = mapUpdateSurveyDto(this.form.value, this.survey);
 
     if (this.isEditMode) {
-      this.surveyApiService.updateSurvey(dto, this.survey).subscribe(() => {
-        this.router.navigate(['/survey', this.urlName]);
+      this.surveyApiService.updateSurvey(dto, this.survey).subscribe({
+        next: (survey) => {
+          this.loadingService.hide();
+          this.router.navigate(['/survey', survey.urlName]);
+        },
+        error: (err) => {
+          this.loadingService.hide();
+        }
       });
     } else {
-      this.surveyApiService.addSurvey(dto).subscribe((survey: SurveyDto) => {
-        this.router.navigate(['/survey', survey.urlName]);
+      this.surveyApiService.addSurvey(dto).subscribe({
+        next: (survey: SurveyDto) => {
+          this.loadingService.hide();
+          this.router.navigate(['/survey', survey.urlName]);
+        },
+        error: (err) => {
+          this.loadingService.hide();
+        }
       });
     }
   }
-  trackByIndex(index: number): number {
-    return index;
+  onSubmit(): void {
+    if (this.isInvalid()) {
+      this.form.markAllAsTouched(); // 👈 force error messages to show
+      return;
+    }
+    else if (this.isEditMode)
+    {
+      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+        data: {
+          title: 'Confirm Revision',
+          message: 'Modifying this survey will delete all responses. Are you sure you want to modify this item?',
+        }
+      });
+
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+          this.modifySurvey();
+        }
+      });
+    }
+    else
+    {
+      this.modifySurvey();
+    }
+  }
+  trackById(index: number, control: AbstractControl): any {
+    return control.get('id')?.value ?? index;
   }
   get surveyQuestions(): FormArray {
     return this.form.get('surveyQuestions') as FormArray;
@@ -113,20 +172,42 @@ export class SurveyUpdateComponent {
   addSurveyQuestion(question?: SurveyQuestionDto): void {
     const questionGroup = this.buildQuestionGroup(question);
     this.surveyQuestions.push(questionGroup);
+    this.checkNoQuestionsError();
   }
 
   removeSurveyQuestion(index: number): void {
     this.surveyQuestions.removeAt(index); 
+    this.checkNoQuestionsError();
   }
   getSurveyResponses(index: number): FormArray {
-    return this.surveyQuestions.at(index).get('surveyResponses') as FormArray;
+    var responses = this.surveyQuestions.at(index).get('surveyResponses') as FormArray;
+
+    return responses;
   }
   addSurveyResponse(questionIndex: number, response?: SurveyResponseDto): void {
-    this.getSurveyResponses(questionIndex).push(
+    var responses = this.getSurveyResponses(questionIndex);
+
+    responses.push(
       this.buildResponseGroup(response)
     );
+
+    if (responses.length > 1){
+      this.checkQuestionMissingResponsesError();
+    }
   }
   removeSurveyResponse(questionIndex: number, responseIndex: number): void {
-    this.getSurveyResponses(questionIndex).removeAt(responseIndex);
+    console.log(`questionIndex: ${questionIndex} responseIndex: ${responseIndex}`);
+    var responses = this.getSurveyResponses(questionIndex)
+    
+    responses.controls.forEach((control, index) => {
+      console.log(`Response at index ${index}:`, control.value.text);
+    });
+
+    responses.removeAt(responseIndex);
+    this.checkQuestionMissingResponsesError();
+
+    responses.controls.forEach((control, index) => {
+      console.log(`Response at index ${index}:`, control.value.text);
+    });
   }
 }

@@ -1,0 +1,4 @@
+{
+  "github.copilot.chat.enableWorkspaceContext": true,
+  "github.copilot.chat.experimental.enableChatInEditorInline": true
+}

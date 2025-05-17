@@ -1,0 +1,16 @@
+<div class="response-container" *ngIf="userSurvey">
+  <h2>{{ userSurvey.surveyName }}</h2>
+
+  <div class="response-card" *ngFor="let r of userSurvey.responses">
+    <div class="question">
+      <strong>Q:</strong> {{ r.surveyQuestion }}
+    </div>
+    <div class="answer">
+      <strong>A:</strong> {{ r.surveyResponse }}
+    </div>
+  </div>
+</div>
+
+<div *ngIf="!userSurvey">
+  <p>Loading responses...</p>
+</div>

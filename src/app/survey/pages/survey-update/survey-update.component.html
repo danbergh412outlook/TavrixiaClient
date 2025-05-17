@@ -29,16 +29,9 @@
       Add Question
     </button>
   </div>
-  <mat-error *ngIf="noQuestionsError">
-    You must add at least one question.
-  </mat-error>
-
-  <mat-error *ngIf="questionMissingResponsesError">
-    Every question must have at least two responses.
-  </mat-error>
   <!-- Questions -->
   <div formArrayName="surveyQuestions" class="question-section">
-    @for (question of surveyQuestions.controls; let i = $index; track i) {
+    @for (question of surveyQuestions.controls; let i = $index; track trackById(i, question)) {
       <div [formGroupName]="i" class="question-block">
         <!-- Question Text + Remove Icon -->
         <div class="question-inline-row">
@@ -60,13 +53,13 @@
 
         <!-- Survey Responses -->
         <div formArrayName="surveyResponses" class="response-section">
-          @for (response of getSurveyResponses(i).controls; let j = $index; track j) {
+          @for (response of getSurveyResponses(i).controls; let j = $index; track trackById(j, response)) {
             <div [formGroupName]="j" class="response-block">
               <mat-form-field appearance="fill" class="flex-fill">
                 <mat-label>Response</mat-label>
                 <input matInput formControlName="text" placeholder="Response option" autocomplete="off" />
               </mat-form-field>
-              <mat-error *ngIf="response.get('text')?.hasError('required')">
+              <mat-error *ngIf="response.get('text')?.hasError('required') && response.get('text')?.touched">
                 Response is required.
               </mat-error>
               <mat-error *ngIf="response.get('text')?.hasError('maxlength')">
@@ -91,9 +84,17 @@
     }
   </div>
 
+  <mat-error *ngIf="noQuestionsError">
+    You must add at least one question.
+  </mat-error>
+
+  <mat-error *ngIf="questionMissingResponsesError">
+    Every question must have at least two responses.
+  </mat-error>
+
   <!-- Submit Button -->
   <div class="submit-container">
-    <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">
+    <button mat-raised-button color="primary" type="submit">
       Submit
     </button>
   </div>

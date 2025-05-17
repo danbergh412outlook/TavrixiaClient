@@ -1,4 +1,4 @@
-export interface SurveyResponseFormValue {
+export interface SurveyResponseCreateForm {
   text: string;
   id?: number;
   surveyId?: number;

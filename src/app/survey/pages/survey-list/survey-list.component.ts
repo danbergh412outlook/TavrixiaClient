@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
+import { LoadingService } from '../../../shared/services/loading.service';
 
 
 @Component({
@@ -16,16 +17,22 @@ import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-
 })
 export class SurveyListComponent {
   surveys: SurveyDto[] | null = null;
-  constructor(private apiService: SurveyApiService, private router: Router, private dialog: MatDialog) {
+  constructor(private apiService: SurveyApiService, private router: Router, private dialog: MatDialog, private loadingService: LoadingService) {
 
   }
   ngOnInit(): void {
     this.loadSurveys();
   }
   loadSurveys(){
-    this.apiService.loadSurveys().subscribe(surveys => {
-      this.surveys = surveys;
-      console.log(this.surveys);
+    this.loadingService.show();
+    this.apiService.loadSurveys().subscribe({
+      next: (surveys) => {
+        this.surveys = surveys;
+        this.loadingService.hide();
+      },
+      error: (err) => {
+        this.loadingService.hide();
+      }
     });
   }
   viewSurvey(survey: SurveyDto) {
@@ -35,17 +42,23 @@ export class SurveyListComponent {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
         title: 'Confirm Delete',
-        message: 'Are you sure you want to delete this item?',
+        message: 'Deleting this survey will delete all responses. Are you sure you want to delete this item?',
       }
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         // User clicked Yes
-        this.apiService.deleteSurvey(urlName).subscribe(surveys => {
+        this.loadingService.show();
+        this.apiService.deleteSurvey(urlName).subscribe({ 
+          next: surveys => {
           this.loadSurveys();
           console.log("Deleted");
-        });
+        },
+        error: () => {
+          this.loadingService.hide();
+        }
+      });
         
       } else {
         // User clicked No

@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { SurveyMapperService } from './survey-mapper.service';
+import { UserSurveyApiService } from './user-survey-api.service';
 
-describe('SurveyMapperService', () => {
-  let service: SurveyMapperService;
+describe('UserSurveyApiService', () => {
+  let service: UserSurveyApiService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(SurveyMapperService);
+    service = TestBed.inject(UserSurveyApiService);
   });
 
   it('should be created', () => {

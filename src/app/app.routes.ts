@@ -6,6 +6,7 @@ import { LoginComponent } from './shared/pages/login/login.component';
 import { AuthGuard } from './shared/guards/auth.guard';
 import { SurveyViewComponent } from './survey/pages/survey-view/survey-view.component';
 import { NotFoundComponent } from './shared/pages/not-found/not-found.component';
+import { ResponseViewComponent } from './survey/pages/response-view/response-view.component';
 
 export const routes: Routes = [
     {
@@ -26,6 +27,11 @@ export const routes: Routes = [
     {
         path: 'survey/:id',
         component: SurveyViewComponent,
+        canActivate: [AuthGuard]
+    },
+    {
+        path: 'survey/:survey/response/:response',
+        component: ResponseViewComponent,
         canActivate: [AuthGuard]
     },
     {
