@@ -3,8 +3,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { SurveyApiService } from '../../services/survey-api.service';
 import { UserSurveyDto } from '../../dtos/user-survey-dto';
 import { CommonModule } from '@angular/common';
-import { LoadingService } from '../../../shared/services/loading.service';
 import { UserSurveyApiService } from '../../services/user-survey-api.service';
+import { LoadingService } from '../../../shared/services/loading.service';
 
 @Component({
   selector: 'app-response-view',
@@ -21,27 +21,17 @@ export class ResponseViewComponent {
       private userSurveyApiService: UserSurveyApiService,
       private route: ActivatedRoute,
       private router: Router,
-      private loadingService: LoadingService
+      private loader: LoadingService
     ) {}
   
     ngOnInit(): void {
       this.surveyUrlName = this.route.snapshot.paramMap.get('survey')!;
       this.urlName = this.route.snapshot.paramMap.get('response')!;
-      this.loadingService.show();
-      this.userSurveyApiService.loadUserSurvey(this.surveyUrlName, true, false, this.urlName).subscribe({
-        next: (survey) => {
+      this.userSurveyApiService.loadUserSurvey(this.surveyUrlName, true, false, this.urlName).subscribe(
+        (survey) => {
           this.userSurvey = survey!;
-          this.loadingService.hide();
-        },
-        error: (err) => {
-          this.loadingService.hide();
-          if (err.status === 404) {
-            this.router.navigate(['/not-found']);  // Or your actual not-found route
-          } else {
-            console.error('Error loading survey response:', err);
-          }
-        }
-      });
+          this.loader.hide();
+        });
     }
 
 }

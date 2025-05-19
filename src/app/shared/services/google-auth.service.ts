@@ -2,8 +2,8 @@ import { Router } from '@angular/router';
 import { Injectable, inject } from '@angular/core';
 import { jwtDecode } from 'jwt-decode'; // npm install jwt-decode
 import { AppUserApiService } from './app-user-api.service';
-import { LoadingService } from './loading.service';
 import { GoogleTokenService } from './google-token.service';
+import { LoadingService } from './loading.service';
 
 declare const google: any;
 
@@ -13,9 +13,7 @@ declare const google: any;
 export class GoogleAuthService {
   private router = inject(Router);
   private appUsersService = inject(AppUserApiService);
-  private loader: LoadingService = inject(LoadingService);
   private googleTokenService: GoogleTokenService = inject(GoogleTokenService);
-
   initialize(): void {
     google.accounts.id.initialize({
       client_id: '557879449612-ovo7s6nlvrqaackqu2l4jm64nkurhg0m.apps.googleusercontent.com', // Replace with your Client ID
@@ -89,7 +87,6 @@ export class GoogleAuthService {
   }
 
   handleCredentialResponse(response: any): void {
-    this.loader.show();
     console.log('Google Sign-In Response:', response);
     const token = response.credential;
     const decodedToken: any = jwtDecode(token);
@@ -97,17 +94,10 @@ export class GoogleAuthService {
     this.googleTokenService.setToken(token);
 
     this.appUsersService.ensureUserExists()
-    .subscribe({
-      next: () => {
+    .subscribe(() => {
         const redirectUrl = localStorage.getItem('redirectAfterLogin') || '/';
         localStorage.removeItem('redirectAfterLogin'); // Clean up
-        this.loader.hide();
         window.location.href = redirectUrl; // or use router if inside Angular
-      },
-      error: () => {
-        this.loader.hide();
-      }
-    });
-    
+      });
   }
 }

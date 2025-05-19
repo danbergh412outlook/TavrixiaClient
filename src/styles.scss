@@ -2,3 +2,14 @@
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; background-color: #f5f7fa; }
+
+.hidden {
+  display: none !important;
+}
+
+mat-error {
+  display: block;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+  color: #f44336; // Material error red
+}

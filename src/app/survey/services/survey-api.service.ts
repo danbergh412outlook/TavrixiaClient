@@ -4,7 +4,6 @@ import { environment } from '../../../environments/environment';
 import { SurveyDto } from '../dtos/survey-dto';
 import { Observable } from 'rxjs';
 import { UpdateSurveyDto } from '../dtos/update-survey-dto';
-import { GoogleTokenService } from '../../shared/services/google-token.service';
 
 @Injectable({
   providedIn: 'root'
@@ -12,47 +11,22 @@ import { GoogleTokenService } from '../../shared/services/google-token.service';
 export class SurveyApiService {
   private http = inject(HttpClient);
   private readonly baseUrl = environment.apiBaseUrl;
-  constructor(private googleTokenService: GoogleTokenService) {
+  constructor() {
     
   }
   loadSurveys(): Observable<SurveyDto[]> {
-    let token = this.googleTokenService.getToken();
-    return this.http.get<SurveyDto[]>(`${this.baseUrl}/surveys`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+    return this.http.get<SurveyDto[]>(`${this.baseUrl}/surveys`);
   }
   loadSurvey(urlName: string): Observable<SurveyDto> {
-    let token = this.googleTokenService.getToken();
-    return this.http.get<SurveyDto>(`${this.baseUrl}/surveys/${urlName}`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+    return this.http.get<SurveyDto>(`${this.baseUrl}/surveys/${urlName}`);
   }
   addSurvey(survey: UpdateSurveyDto): Observable<SurveyDto> {
-    let token = this.googleTokenService.getToken();
-    return this.http.post<SurveyDto>(`${this.baseUrl}/surveys`, survey, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+    return this.http.post<SurveyDto>(`${this.baseUrl}/surveys`, survey);
   }
   updateSurvey(survey: UpdateSurveyDto, oldSurvey: SurveyDto): Observable<SurveyDto> {
-    let token = this.googleTokenService.getToken();
-    return this.http.put<SurveyDto>(`${this.baseUrl}/surveys/${oldSurvey.urlName}`, survey, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+    return this.http.put<SurveyDto>(`${this.baseUrl}/surveys/${oldSurvey.urlName}`, survey);
   }
   deleteSurvey(urlName: string): Observable<void> {
-    const token = this.googleTokenService.getToken();
-    return this.http.delete<void>(`${this.baseUrl}/surveys/${urlName}`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+    return this.http.delete<void>(`${this.baseUrl}/surveys/${urlName}`);
   }
 }

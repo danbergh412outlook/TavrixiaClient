@@ -1,0 +1,9 @@
+<div *ngIf="hasError" class="error-container">
+    <h2 *ngIf="error.type === 'not-found'">Not Found</h2>
+    <h2 *ngIf="error.type === 'general'">Error</h2>
+    <p>{{ error.message }}</p>
+    <button mat-raised-button color="primary" class="retry-btn" (click)="dismissAndRefresh()">
+        <mat-icon>refresh</mat-icon>
+        Retry
+    </button>
+</div>

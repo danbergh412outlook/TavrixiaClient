@@ -7,10 +7,10 @@ import { SurveyDto } from '../../dtos/survey-dto';
 import { SurveyQuestionDto } from '../../dtos/survey-question-dto';
 import { SurveyResponseDto } from '../../dtos/survey-response-dto';
 import { MaterialImports } from '../../../shared/imports/material-imports';
-import { LoadingService } from '../../../shared/services/loading.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { mapUpdateSurveyDto } from '../../helpers/survey-mappers';
+import { LoadingService } from '../../../shared/services/loading.service';
 
 @Component({
   selector: 'app-survey-update',
@@ -31,9 +31,9 @@ export class SurveyUpdateComponent {
     private fb: FormBuilder, 
     private surveyApiService: SurveyApiService, 
     private router: Router, 
-    private loadingService: LoadingService,
-    private dialog: MatDialog
-  ) {    
+    private dialog: MatDialog,
+    private loader: LoadingService)
+  {    
     this.form = this.fb.group({
       id: [null],
       name: ['', [Validators.required, Validators.maxLength(100)]], // Add validators as needed
@@ -46,23 +46,11 @@ export class SurveyUpdateComponent {
     this.isEditMode = !!this.urlName;
 
     if (this.isEditMode) {
-      this.loadingService.show();
-      this.surveyApiService.loadSurvey(this.urlName).subscribe({
-        next: (survey) => {
+      this.surveyApiService.loadSurvey(this.urlName).subscribe((survey) => {
           this.survey = survey;
           this.form.patchValue({ name: survey.name, id: survey.id });
-
           survey.surveyQuestions!.forEach(q => this.addSurveyQuestion(q));
-          this.loadingService.hide();
-        },
-        error: (err) => {
-          this.loadingService.hide();
-          if (err.status === 404) {
-            this.router.navigate(['/not-found']);  // Or your actual not-found route
-          } else {
-            console.error('Error loading survey:', err);
-          }
-        }
+          this.loader.hide();
       });
     }
   }
@@ -95,29 +83,16 @@ export class SurveyUpdateComponent {
     return formInvalid || this.noQuestionsError || this.questionMissingResponsesError;
   }
   modifySurvey(): void {
-    this.loadingService.show();
     const dto = mapUpdateSurveyDto(this.form.value, this.survey);
 
     if (this.isEditMode) {
-      this.surveyApiService.updateSurvey(dto, this.survey).subscribe({
-        next: (survey) => {
-          this.loadingService.hide();
+      this.surveyApiService.updateSurvey(dto, this.survey).subscribe((survey) => {
           this.router.navigate(['/survey', survey.urlName]);
-        },
-        error: (err) => {
-          this.loadingService.hide();
-        }
-      });
+        });
     } else {
-      this.surveyApiService.addSurvey(dto).subscribe({
-        next: (survey: SurveyDto) => {
-          this.loadingService.hide();
+      this.surveyApiService.addSurvey(dto).subscribe((survey: SurveyDto) => {
           this.router.navigate(['/survey', survey.urlName]);
-        },
-        error: (err) => {
-          this.loadingService.hide();
-        }
-      });
+        });
     }
   }
   onSubmit(): void {

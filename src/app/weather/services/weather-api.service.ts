@@ -2,8 +2,6 @@ import { Injectable, inject  } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { Weather } from "../models/weather";
-import { GoogleAuthService } from '../../shared/services/google-auth.service';
-import { GoogleTokenService } from '../../shared/services/google-token.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,16 +9,7 @@ import { GoogleTokenService } from '../../shared/services/google-token.service';
 export class WeatherApiService {
   private http = inject(HttpClient);
   private readonly baseUrl = environment.apiBaseUrl;
-  constructor(private googleTokenService: GoogleTokenService) {
-    
-   }
    loadWeather(){
-    let token = this.googleTokenService.getToken();
-    console.log(token);
-    return this.http.get<Weather[]>(this.baseUrl + '/WeatherForecast', {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+    return this.http.get<Weather[]>(this.baseUrl + '/WeatherForecast');
    }
 }

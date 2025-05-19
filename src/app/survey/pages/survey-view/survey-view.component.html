@@ -25,7 +25,7 @@
       <mat-card-content>
         <mat-radio-group [formControlName]="question.id.toString()" class="radio-group">
           @for (response of question.surveyResponses; track response.id) {
-            <mat-radio-button [value]="response.id">
+            <mat-radio-button [value]="response.id" (change)="onAnswerChange()">
               {{ response.text }}
             </mat-radio-button>
           }
@@ -33,6 +33,10 @@
       </mat-card-content>
     </mat-card>
   }
+
+  <mat-error *ngIf="showValidation && form.invalid">
+    Please answer all questions before submitting your survey.
+  </mat-error>
 
   <div class="submit-container">
     @if (userSurvey) {

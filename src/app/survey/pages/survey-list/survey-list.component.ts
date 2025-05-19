@@ -8,7 +8,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
 import { LoadingService } from '../../../shared/services/loading.service';
 
-
 @Component({
   selector: 'app-survey-list',
   imports: [CommonModule, RouterModule, ...MaterialImports],
@@ -17,23 +16,21 @@ import { LoadingService } from '../../../shared/services/loading.service';
 })
 export class SurveyListComponent {
   surveys: SurveyDto[] | null = null;
-  constructor(private apiService: SurveyApiService, private router: Router, private dialog: MatDialog, private loadingService: LoadingService) {
+  constructor(
+    private apiService: SurveyApiService, 
+    private router: Router, 
+    private dialog: MatDialog,
+    private loader: LoadingService) {
 
   }
   ngOnInit(): void {
     this.loadSurveys();
   }
   loadSurveys(){
-    this.loadingService.show();
-    this.apiService.loadSurveys().subscribe({
-      next: (surveys) => {
+    this.apiService.loadSurveys().subscribe((surveys) => {
         this.surveys = surveys;
-        this.loadingService.hide();
-      },
-      error: (err) => {
-        this.loadingService.hide();
-      }
-    });
+        this.loader.hide();
+      });
   }
   viewSurvey(survey: SurveyDto) {
     this.router.navigate(['/survey', survey.urlName]);
@@ -49,16 +46,11 @@ export class SurveyListComponent {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         // User clicked Yes
-        this.loadingService.show();
-        this.apiService.deleteSurvey(urlName).subscribe({ 
-          next: surveys => {
-          this.loadSurveys();
-          console.log("Deleted");
-        },
-        error: () => {
-          this.loadingService.hide();
-        }
-      });
+        this.apiService.deleteSurvey(urlName).subscribe(() => {
+            this.loadSurveys();
+            this.loader.hide();
+            console.log("Deleted");
+        });
         
       } else {
         // User clicked No
